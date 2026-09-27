@@ -90,6 +90,16 @@ class TestSummarizeTraining(unittest.TestCase):
         self.assertEqual(stats["content_correct"], 1)
         self.assertEqual(stats["content_accuracy"], 1.0)
 
+    def test_stt_accuracy_ignores_ungradeable_rows(self):
+        rows = [
+            {"correct_stt": True, "correct_content": True},
+            {"correct_stt": None, "correct_content": True},  # no options recorded, excluded
+        ]
+        stats = st.summarize_training(rows)
+        self.assertEqual(stats["stt_known"], 1)
+        self.assertEqual(stats["stt_correct"], 1)
+        self.assertEqual(stats["stt_accuracy"], 1.0)
+
     def test_mismatches_collected(self):
         rows = [
             {"isbn": "1", "expected": "fiction", "heard": "friction", "correct_stt": False},
@@ -119,6 +129,12 @@ class TestRenderScreenSummary(unittest.TestCase):
         training_stats = st.summarize_training([{"correct_stt": True, "correct_content": True}] * 50)
         lines = st.render_screen_summary(book_stats, training_stats, width=20)
         self.assertTrue(all(len(l) <= 20 for l in lines))
+
+    def test_ungradeable_rounds_show_as_na_not_zero_percent(self):
+        book_stats = {"total": 1}
+        training_stats = st.summarize_training([{"correct_stt": None, "correct_content": True}])
+        lines = st.render_screen_summary(book_stats, training_stats, width=40)
+        self.assertTrue(any("STT accuracy n/a" in l for l in lines))
 
 
 class TestGenerateCandidateFixups(unittest.TestCase):
