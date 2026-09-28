@@ -57,12 +57,13 @@ def summarize_training(rows):
     Returns a dict with counts and rates (None rate if there's no data
     yet, never a divide-by-zero).
 
-    correct_stt is three-valued since 2026-07-25 (grade_answer gained the
-    option list; None means "no options recorded, so nothing to judge the
-    transcription against"). stt_accuracy is therefore over the rows where
-    it is KNOWN, exactly as content_accuracy already was -- dividing by
-    len(rows) would let an unjudgeable round read as a transcription
-    failure, which is the whole class of error that change fixed."""
+    correct_stt is three-valued (grade_answer's option-list gate, witnessed
+    by tests/test_book_game.py::TestGrading::test_no_options_means_the_stt_axis_is_unknown).
+    stt_accuracy is over the rows where it is KNOWN, exactly as
+    content_accuracy already was -- dividing by len(rows) would let an
+    unjudgeable round read as a transcription failure. Witnessed by
+    tests/test_book_game_stats.py::TestSummarizeTraining::test_stt_accuracy_ignores_ungradeable_rows
+    and ::test_content_accuracy_ignores_ungradeable_rows."""
     total = len(rows)
     stt_known = [r for r in rows if r.get("correct_stt") is not None]
     stt_correct = sum(1 for r in stt_known if r.get("correct_stt") is True)
@@ -89,9 +90,10 @@ def render_screen_summary(book_stats, training_stats, width=None):
     if training_stats["total_rounds"] == 0:
         lines.append("No spoken answers graded yet.")
     elif training_stats["stt_accuracy"] is None:
-        # Rounds exist but none of them recorded an option list to judge the
-        # transcription against (pre-2026-07-25 rows can also land here).
-        # Saying "0%" would be a lie in the direction that panics people.
+        # Rounds exist but none recorded an option list to judge the
+        # transcription against. Saying "0%" would be a lie in the
+        # direction that panics people. Witnessed by
+        # tests/test_book_game_stats.py::TestRenderScreenSummary::test_ungradeable_rounds_show_as_na_not_zero_percent.
         lines.append(f"{training_stats['total_rounds']} answer(s) graded, STT accuracy n/a")
     else:
         acc = training_stats["stt_accuracy"]
