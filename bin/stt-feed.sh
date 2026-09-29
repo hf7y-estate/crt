@@ -41,7 +41,8 @@ is_whisper_noise_hallucination() {
 # is_whisper_noise_hallucination, kept a real parameter rather than a bare
 # $key read from the caller's scope (that used to read an unset variable
 # and crash the whole loop under `set -u` the first time anyone said a
-# bare "yes"; witnessed by test_stt_feed_voice_control.sh).
+# bare "yes"; witnessed by tests/test_stt_feed_gate_flag.sh's
+# "voice_control_keystroke runs clean under set -u" check).
 voice_control_keystroke() {
   local key
   key=$(printf '%s' "$1" | tr 'A-Z' 'a-z' | tr -cd 'a-z')
