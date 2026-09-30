@@ -114,12 +114,10 @@ def wrap_to_width(text, limit, max_lines=None):
     rather than simply stopping. A single word wider than `limit` is elided
     on its own line.
 
-    Added 2026-07-25: the idle caption was the one piece of text on these
-    screens getting a hard single-line cut while the question beside it
-    wrapped, and all six enticement lines are longer than the 30-column
-    content budget -- so every one of them lost its ending, and four of the
-    six lost the words 'scan'/'try it' entirely. The screen whose only job is
-    to ask someone to scan a book had stopped asking."""
+    Wraps rather than hard-cutting because a hard cut here silently drops
+    the caption's own ask -- witnessed by tests/test_idle_caption_fits.py::
+    TheCaptionStillAsksTest::test_the_ask_survives_in_all_of_them and
+    ::test_every_enticement_line_appears_whole."""
     if limit <= 0:
         return [""]
     parts = [p for p in re.split(r"(\s+)", text) if p]
@@ -155,9 +153,9 @@ def center_text(text, width):
     single over-length line is a caller bug, not something this helper
     should silently multi-line.
 
-    Measured in COLUMNS since 2026-07-25 (see char_width): padding a
-    fullwidth book title by character count draws a line wider than the
-    pane, which wraps and pushes the screen's own bottom row off the tube."""
+    Measured in COLUMNS since 2026-07-25 (see char_width) -- witnessed by
+    tests/test_idle_caption_fits.py::ColumnWidthTest::
+    test_a_fullwidth_title_is_padded_to_the_pane_not_past_it."""
     w = display_width(text)
     if w >= width:
         # Still padded after the cut -- witnessed by tests/test_idle_caption_fits.py::
