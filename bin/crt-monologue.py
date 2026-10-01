@@ -9,11 +9,10 @@
 # thoughts.log/stt.log on disk). Dim/bold readability on the real
 # phosphor is not yet confirmed.
 #
-# SIZE IS RECOMPUTED EVERY FRAME (2026-07-25), not read once at import:
-# crt-console.sh creates this window detached, which tmux sizes 80x24
-# regardless of the tube, so a fixed height once drew 9 lines past a real
-# 15-row pane and scrolled the top away before it could be read. See
-# viewport()'s own docstring for the resulting size precedence and the
+# SIZE IS RECOMPUTED EVERY FRAME, not read once at import -- the detached-
+# at-80x24-then-tube-arrives-at-40x15 bug this guards against is witnessed by
+# tests/test_monologue_viewport.py::TestSizeIsReadPerFrame::test_height_follows_the_pane_after_the_client_attaches.
+# See viewport()'s own docstring for the resulting size precedence and the
 # overscan margin this shares with crt-pager.py.
 import os, sys, time, textwrap, shutil, importlib.util
 
